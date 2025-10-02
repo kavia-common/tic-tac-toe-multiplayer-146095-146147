@@ -15,6 +15,29 @@ const winningTriples: number[][] = [
   [2, 4, 6],
 ];
 
+/**
+ * Render helper for the new piece icons.
+ * - X -> chess knight
+ * - O -> chess queen
+ * Uses emoji/Unicode for crisp scaling without extra assets.
+ */
+function renderPiece(val: "X" | "O") {
+  // Using spans enables us to style size and color via CSS classes already applied to the cell.
+  // ♞ (knight), ♛ (queen)
+  return (
+    <span
+      style="
+        display:inline-block;
+        line-height:1;
+        transform: translateY(-2px);
+      "
+      aria-hidden="true"
+    >
+      {val === "X" ? "♞" : "♛"}
+    </span>
+  );
+}
+
 // PUBLIC_INTERFACE
 export default component$(() => {
   // Board state: 'X' | 'O' | null per square
@@ -109,7 +132,7 @@ export default component$(() => {
           <div class="subtle">
             Current player:
             <span class={xIsNext.value ? "pill blue" : "pill amber"} style="margin-left:.5rem;">
-              {xIsNext.value ? "X (Blue)" : "O (Amber)"}
+              {xIsNext.value ? "X (Knight, Blue)" : "O (Queen, Amber)"}
             </span>
           </div>
           <div class="subtle">
@@ -143,7 +166,7 @@ export default component$(() => {
               .join(" ");
 
             const aria = val
-              ? `Cell ${idx + 1} contains ${val}`
+              ? `Cell ${idx + 1} contains ${val === "X" ? "knight" : "queen"}`
               : `Cell ${idx + 1} empty`;
 
             return (
@@ -156,7 +179,8 @@ export default component$(() => {
                 disabled={isDisabled && val !== null}
                 onClick$={() => handleCellClick(idx)}
               >
-                {val ?? ""}
+                {/* Render chess icons instead of plain letters */}
+                {val ? renderPiece(val) : ""}
               </button>
             );
           })}
@@ -165,10 +189,14 @@ export default component$(() => {
         {/* Footer actions / legend */}
         <div class="footer-actions">
           <div class="legend">
-            <span class="pill blue">X</span>
-            <span class="subtle">Blue</span>
-            <span class="pill amber" style="margin-left:.5rem;">O</span>
-            <span class="subtle">Amber</span>
+            <span class="pill blue" title="X player">
+              ♞
+            </span>
+            <span class="subtle">Knight (Blue)</span>
+            <span class="pill amber" style="margin-left:.5rem;" title="O player">
+              ♛
+            </span>
+            <span class="subtle">Queen (Amber)</span>
           </div>
           <div class="actions">
             <button type="button" class="btn btn-primary" onClick$={resetGame}>
